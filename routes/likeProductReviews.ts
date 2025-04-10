@@ -22,13 +22,13 @@ module.exports = function productReviews () {
         const likedBy = review.likedBy
         if (!likedBy.includes(user.data.email)) {
           db.reviewsCollection.update(
-            { _id: id },
+            { _id: { $eq: id } },
             { $inc: { likesCount: 1 } }
           ).then(
             () => {
               // Artificial wait for timing attack challenge
               setTimeout(function () {
-                db.reviewsCollection.findOne({ _id: id }).then((review: Review) => {
+                db.reviewsCollection.findOne({ _id: { $eq: id } }).then((review: Review) => {
                   const likedBy = review.likedBy
                   likedBy.push(user.data.email)
                   let count = 0
@@ -39,7 +39,7 @@ module.exports = function productReviews () {
                   }
                   challengeUtils.solveIf(challenges.timingAttackChallenge, () => { return count > 2 })
                   db.reviewsCollection.update(
-                    { _id: id },
+                    { _id: { $eq: id } },
                     { $set: { likedBy } }
                   ).then(
                     (result: any) => {
